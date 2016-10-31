@@ -111,7 +111,8 @@ void calibrate(){
 
   do
   {
-    sample = analogRead(inputPin);    
+  sample = analogRead (inputPin);
+    //sample = analogRead(inputPin);    
 
     if (sample > baseline + min_diff){
       success_count++;
