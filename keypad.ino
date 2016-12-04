@@ -1,7 +1,16 @@
+
+
 /*4x4 Matrix Keypad connected to Arduino
 This code prints the key pressed on the keypad to the serial port*/
 
 #include <Keypad.h>
+#include <Servo.h>
+
+
+Servo servo_Motor; 
+char* password = "123";
+int position = 0;
+int piezoPin = 11;
 
 const byte numRows= 4; //number of rows on the keypad
 const byte numCols= 4; //number of columns on the keypad
@@ -24,29 +33,45 @@ Keypad myKeypad= Keypad(makeKeymap(keymap), rowPins, colPins, numRows, numCols);
 #define ledpin 13
 void setup()
 {
-pinMode(ledpin,OUTPUT);
+  pinMode(ledpin,OUTPUT);
   digitalWrite(ledpin, HIGH);
-  Serial.begin(9600);;
+  servo_Motor.attach(10 );
+  setLocked(true);
+  Serial.begin(9600);
 }
 
-//If key is pressed, this key is stored in 'keypressed' variable
-//If key is not equal to 'NO_KEY', then this key is printed out
-//if count=17, then count is reset back to 0 (this means no key is pressed during the whole keypad scan process
 void loop()
 {
 char key = myKeypad.getKey();
-  if(key)  // Check for a valid key.
-  {
-    switch (key)
-    {
-      case '*':
-        digitalWrite(ledpin, LOW);
-        break;
-      case '#':
-        digitalWrite(ledpin, HIGH);
-        break;
-      default:
-        Serial.println(key);
-    }
-  }
+ if (key == '*' || key == '#')
+{
+position = 0;
+setLocked(true);
+}
+if (key == password[position])
+{
+position ++;
+}
+if (position == 3)
+{
+setLocked(false);
+}
+//delay(100);
+ Serial.println(key);
+}
+
+void setLocked(int locked)
+{
+if (locked)
+{
+  digitalWrite(ledpin, LOW);
+  noTone(11);
+  servo_Motor.write(11);
+}
+else
+{
+   digitalWrite(ledpin, HIGH);
+   tone(piezoPin, 10000, 500);
+   servo_Motor.write(90);
+}
 }
